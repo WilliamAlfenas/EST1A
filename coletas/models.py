@@ -19,6 +19,9 @@ class Alergia(models.Model):
 class Sintoma(AutoDesc, models.Model): 
     nome = models.CharField("Nome", max_length=200, unique=True)
     descricao = models.CharField("Descrição", max_length=400)
+    
+    def __str__(self):
+        return self.nome
 
 class Fase(AutoDesc, models.Model):
     nome = models.CharField("Nome", max_length=200, unique=True)
