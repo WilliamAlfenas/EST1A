@@ -2,7 +2,7 @@ import csv
 from django.contrib import admin
 from django.http import HttpResponse
 from datetime import datetime
-from .models import Paciente, Sintoma, Tratamento, Cidade, Comorbidade, Alergia, Forma_Tratamento, Fase, Origem
+from .models import Paciente, Sintoma, Tratamento, Cidade, Comorbidade, Alergia, Forma_Tratamento, Fase, Origem, Dias_Sintoma
 
 ### cfehome.utils.py or the root of your project conf
 def get_model_field_names(model, ignore_fields=['content_object']):
@@ -80,7 +80,23 @@ download_csv.short_description = 'Baixar os items selecionados em CSV'
 class CustomAdmin(admin.ModelAdmin):
     actions = [download_csv]
 
-admin.site.register(Paciente, CustomAdmin)
+class Dias_SintomaInLine(admin.TabularInline):
+    model = Dias_Sintoma
+    fieldsets = [
+        (None, {
+            'fields': ['sintomas1', 'sintomas2', 'sintomas3'],
+            #'readonly_fields': ('intervalo')
+        })
+    ]
+    
+    extra = 3
+
+class PacienteAdmin(CustomAdmin):
+    inlines = [Dias_SintomaInLine]
+    search_fields = ['nome', 'sexo', 'idade']
+
+
+admin.site.register(Paciente, PacienteAdmin)
 admin.site.register(Sintoma, CustomAdmin)
 admin.site.register(Tratamento, CustomAdmin)
 admin.site.register(Cidade, CustomAdmin)

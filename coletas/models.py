@@ -75,25 +75,7 @@ class Paciente(models.Model):
     altura = models.IntegerField("Altura (cm)")
     alergias = models.ManyToManyField(Alergia, null = True, blank= True, verbose_name="Alergia a remédio - se sim, qual(is)")
     sintomas = models.ManyToManyField(Sintoma, null = True, blank= True, verbose_name="Teve sintomas - se sim, qual(is)")
-
-    sintomas01 = models.ManyToManyField(Sintoma, related_name='Sintoma01', null = True, blank= True, verbose_name="Sintomas - dia 01")
-    sintomas02 = models.ManyToManyField(Sintoma, related_name='Sintoma02', null = True, blank= True, verbose_name="Sintomas - dia 02")
-    sintomas03 = models.ManyToManyField(Sintoma, related_name='Sintoma03', null = True, blank= True, verbose_name="Sintomas - dia 03")
-    sintomas04 = models.ManyToManyField(Sintoma, related_name='Sintoma04', null = True, blank= True, verbose_name="Sintomas - dia 04")
-    sintomas05 = models.ManyToManyField(Sintoma, related_name='Sintoma05', null = True, blank= True, verbose_name="Sintomas - dia 05")
     
-    sintomas06 = models.ManyToManyField(Sintoma, related_name='Sintoma06', null = True, blank= True, verbose_name="Sintomas - dia 06")
-    sintomas07 = models.ManyToManyField(Sintoma, related_name='Sintoma07', null = True, blank= True, verbose_name="Sintomas - dia 07")
-    sintomas08 = models.ManyToManyField(Sintoma, related_name='Sintoma08', null = True, blank= True, verbose_name="Sintomas - dia 08")
-    sintomas09 = models.ManyToManyField(Sintoma, related_name='Sintoma09', null = True, blank= True, verbose_name="Sintomas - dia 09")
-    sintomas10 = models.ManyToManyField(Sintoma, related_name='Sintoma10', null = True, blank= True, verbose_name="Sintomas - dia 10")
-
-    sintomas11 = models.ManyToManyField(Sintoma, related_name='Sintoma11', null = True, blank= True, verbose_name="Sintomas - dia 11")
-    sintomas12 = models.ManyToManyField(Sintoma, related_name='Sintoma12', null = True, blank= True, verbose_name="Sintomas - dia 12")
-    sintomas13 = models.ManyToManyField(Sintoma, related_name='Sintoma13', null = True, blank= True, verbose_name="Sintomas - dia 13")
-    sintomas14 = models.ManyToManyField(Sintoma, related_name='Sintoma14', null = True, blank= True, verbose_name="Sintomas - dia 14")
-    sintomas15 = models.ManyToManyField(Sintoma, related_name='Sintoma15', null = True, blank= True, verbose_name="Sintomas - dia 15")
-
     fase = models.ForeignKey(Fase, on_delete = models.SET_NULL, null = True)
     tratamento = models.ForeignKey(Tratamento, on_delete = models.SET_NULL, null = True, blank = True)
     tratamentos = models.ManyToManyField(Forma_Tratamento, null = True)
@@ -129,3 +111,22 @@ class Paciente(models.Model):
     def __str__(self):
         s = self
         return f'{s.nome}, {s.idade} anos, IMC {s.imc:.2f} - {s.grau_obesidade} -> {s.tratamento}'
+
+class Dias_Sintoma(models.Model):
+    id = models.AutoField(primary_key=True)
+    paciente = models.ForeignKey(Paciente, on_delete=models.CASCADE, null= False)
+
+    def calc_intervalo(): pass
+
+    @property
+    def intervalo(self):
+        print(self)
+        return 'Dias 1, 2 e 3:'
+    
+    sintomas1 = models.ManyToManyField(Sintoma, related_name='DiasSin1', null = True, blank= True, verbose_name="Dias 1, 4 e 7")
+    sintomas2 = models.ManyToManyField(Sintoma, related_name='DiasSin2', null = True, blank= True, verbose_name="Dias 2, 5 e 8")
+    sintomas3 = models.ManyToManyField(Sintoma, related_name='DiasSin3', null = True, blank= True, verbose_name="Dias 3, 6 e 9")
+    
+    class Meta:
+        verbose_name_plural = "Sintomas por dia"
+        verbose_name = "Sintomas por dias"
