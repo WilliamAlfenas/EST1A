@@ -27,15 +27,10 @@ class Fase(AutoDesc, models.Model):
     nome = models.CharField("Nome", max_length=200, unique=True)
     descricao = models.CharField("Descrição", max_length=400)
 
-class Tratamento(AutoDesc, models.Model):
-    class Meta:
-        verbose_name = 'Tratamento antigo'
-    nome = models.CharField("Nome", max_length=200, unique=True)
-    descricao = models.CharField("Descrição", max_length=400)
-
 class Forma_Tratamento(models.Model):
     substancia = models.CharField("Substância", max_length=200, unique=True)
     descricao = models.CharField("Descrição", max_length=400)
+    posologia = models.CharField("Posologia", max_length=100, null= True)
 
     class Meta:
         verbose_name = 'Forma de Tratamento'
@@ -47,6 +42,13 @@ class Forma_Tratamento(models.Model):
 class Comorbidade(AutoDesc, models.Model):
     nome = models.CharField("Nome", max_length=200, unique=True)
     descricao = models.CharField("Descrição", max_length=400)
+
+class DiagFinal(AutoDesc, models.Model):
+    nome = models.CharField("Nome", max_length=200, unique=True)
+    descricao = models.CharField("Descrição", max_length=400)
+    class Meta:
+        verbose_name_plural = "Diagnosticos Finais"
+        verbose_name = "Diagnóstico final"
 
 class Cidade(models.Model):
     nome = models.CharField("Nome", max_length=200, unique=True)
@@ -73,11 +75,19 @@ class Paciente(models.Model):
         ])
     peso = models.FloatField("Peso (kg)")
     altura = models.IntegerField("Altura (cm)")
+    tipo_sang = models.CharField("Tipo Sanguíneo", max_length=16, 
+        choices=[
+            (tp, tp)
+            for tp in [
+                s + rh
+                for s in ['A', 'B', 'AB', 'O']
+                for rh in ['+', '-']
+            ]
+        ], null=True)
     alergias = models.ManyToManyField(Alergia, null = True, blank= True, verbose_name="Alergia a remédio - se sim, qual(is)")
     sintomas = models.ManyToManyField(Sintoma, null = True, blank= True, verbose_name="Teve sintomas - se sim, qual(is)")
     
     fase = models.ForeignKey(Fase, on_delete = models.SET_NULL, null = True)
-    tratamento = models.ForeignKey(Tratamento, on_delete = models.SET_NULL, null = True, blank = True)
     tratamentos = models.ManyToManyField(Forma_Tratamento, null = True)
     outros_tratamentos = models.CharField("Outros Tratamentos", max_length=400, blank= True)
     comorbidades = models.ManyToManyField(Comorbidade, null = True, blank= True)
@@ -86,7 +96,8 @@ class Paciente(models.Model):
     tempo_rec = models.IntegerField("Tempo de Recuperação (dias)")
     exame = models.FileField("Exame", upload_to='exames/%Y/%m/%d/', null=True, blank=True)
     questionario = models.FileField("Questionário", upload_to='questionarios/%Y/%m/%d/', null=True, blank=True)
-    diag_final = models.CharField("Diagnóstico Final", max_length=200, blank=True)
+    #diag_final = models.CharField("Diagnóstico Final", max_length=200, blank=True)
+    diagfinal = models.ForeignKey(DiagFinal, verbose_name="Diagnóstico Final", blank=True, null=True, on_delete=models.SET_NULL)
 
     @property
     def imc(self):
@@ -110,7 +121,7 @@ class Paciente(models.Model):
 
     def __str__(self):
         s = self
-        return f'{s.nome}, {s.idade} anos, IMC {s.imc:.2f} - {s.grau_obesidade} -> {s.tratamento}'
+        return f'{s.nome}, {s.idade} anos, IMC {s.imc:.2f} - {s.grau_obesidade}'
 
 class Dias_Sintoma(models.Model):
     id = models.AutoField(primary_key=True)
@@ -122,11 +133,47 @@ class Dias_Sintoma(models.Model):
     def intervalo(self):
         print(self)
         return 'Dias 1, 2 e 3:'
+    sintoma = models.ForeignKey(Sintoma, null = True, blank = True, on_delete = models.CASCADE)
     
-    sintomas1 = models.ManyToManyField(Sintoma, related_name='DiasSin1', null = True, blank= True, verbose_name="Dias 1, 4 e 7")
-    sintomas2 = models.ManyToManyField(Sintoma, related_name='DiasSin2', null = True, blank= True, verbose_name="Dias 2, 5 e 8")
-    sintomas3 = models.ManyToManyField(Sintoma, related_name='DiasSin3', null = True, blank= True, verbose_name="Dias 3, 6 e 9")
+    dia1 = models.BooleanField("D1", null = False, blank= True, default=False)
+    dia2 = models.BooleanField("D2", null = False, blank= True, default=False)
+    dia3 = models.BooleanField("D3", null = False, blank= True, default=False)
+    dia4 = models.BooleanField("D4", null = False, blank= True, default=False)
+    dia5 = models.BooleanField("D5", null = False, blank= True, default=False)
+    dia6 = models.BooleanField("D6", null = False, blank= True, default=False)
+    dia7 = models.BooleanField("D7", null = False, blank= True, default=False)
+    dia8 = models.BooleanField("D8", null = False, blank= True, default=False)
+    dia9 = models.BooleanField("D9", null = False, blank= True, default=False)
     
     class Meta:
-        verbose_name_plural = "Sintomas por dia"
-        verbose_name = "Sintomas por dias"
+        verbose_name_plural = "Sintomas por dias"
+        verbose_name = "Sintoma por dias"
+    
+class Medicoes_dia(models.Model):
+    id = models.AutoField(primary_key=True)
+    paciente = models.ForeignKey(Paciente, on_delete=models.CASCADE, null= False)
+
+    medicao = models.CharField("Tipo de Medição", max_length=32, 
+        choices=[
+            (t, t)
+            for t in [
+                'Temperatura',
+                'Frequência cardiáca',
+                'Frequência respiratória',
+                'Pressão Arterial',
+                'Saturação de O2'
+            ]
+        ], default='Temperatura')
+    dia1 = models.FloatField("D1")
+    dia2 = models.FloatField("D2")
+    dia3 = models.FloatField("D3")
+    dia4 = models.FloatField("D4")
+    dia5 = models.FloatField("D5")
+    dia6 = models.FloatField("D6")
+    dia7 = models.FloatField("D7")
+    dia8 = models.FloatField("D8")
+    dia9 = models.FloatField("D9")
+    
+    class Meta:
+        verbose_name_plural = "Medições por dias"
+        verbose_name = "Medição por dias"

@@ -1,8 +1,12 @@
 import csv
+from django.db import models
 from django.contrib import admin
 from django.http import HttpResponse
 from datetime import datetime
-from .models import Paciente, Sintoma, Tratamento, Cidade, Comorbidade, Alergia, Forma_Tratamento, Fase, Origem, Dias_Sintoma
+from .models import Paciente, Sintoma, \
+    Cidade, Comorbidade, Alergia, Forma_Tratamento, \
+    Fase, Origem, Dias_Sintoma, Medicoes_dia, DiagFinal
+from django import forms
 
 ### cfehome.utils.py or the root of your project conf
 def get_model_field_names(model, ignore_fields=['content_object']):
@@ -84,26 +88,48 @@ class Dias_SintomaInLine(admin.TabularInline):
     model = Dias_Sintoma
     fieldsets = [
         (None, {
-            'fields': ['sintomas1', 'sintomas2', 'sintomas3'],
+            'fields': [
+                'sintoma', 
+                'dia1', 'dia2', 'dia3', 
+                'dia4', 'dia5', 'dia6', 
+                'dia7', 'dia8', 'dia9'],
             #'readonly_fields': ('intervalo')
         })
     ]
     
     extra = 3
 
+class Medicoes_diaInLine(admin.TabularInline):
+    model = Medicoes_dia
+    fieldsets = [
+        (None, {
+            'fields': [
+                'medicao', 
+                'dia1', 'dia2', 'dia3', 
+                'dia4', 'dia5', 'dia6', 
+                'dia7', 'dia8', 'dia9'],
+            #'readonly_fields': ('intervalo')
+        }),
+    ]
+    widgets = {
+        'dia1': forms.NumberInput(attrs={'style': 'width: 100px'}),
+    }
+    
+    extra = 1
+
 class PacienteAdmin(CustomAdmin):
-    inlines = [Dias_SintomaInLine]
+    inlines = [Dias_SintomaInLine, Medicoes_diaInLine]
     search_fields = ['nome', 'sexo', 'idade']
 
 
 admin.site.register(Paciente, PacienteAdmin)
 admin.site.register(Sintoma, CustomAdmin)
-admin.site.register(Tratamento, CustomAdmin)
 admin.site.register(Cidade, CustomAdmin)
 admin.site.register(Comorbidade, CustomAdmin)
 admin.site.register(Alergia, CustomAdmin)
 admin.site.register(Forma_Tratamento, CustomAdmin)
 admin.site.register(Fase, CustomAdmin)
 admin.site.register(Origem, CustomAdmin)
+admin.site.register(DiagFinal, CustomAdmin)
 admin.site.site_header = 'Grupo Covid19 - Estágio 1A'
 admin.site.site_title = 'Grupo Covid19 - Estágio 1A'
