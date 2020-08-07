@@ -82,6 +82,10 @@ def download_csv(modeladmin, request, queryset):
 download_csv.short_description = 'Baixar os items selecionados em CSV'
 
 class CustomAdmin(admin.ModelAdmin):
+    class Media:
+        css = {
+             'all': ('custom.css',)
+        }
     actions = [download_csv]
 
 class Dias_SintomaInLine(admin.TabularInline):

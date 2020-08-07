@@ -84,6 +84,17 @@ class Paciente(models.Model):
                 for rh in ['+', '-']
             ]
         ], null=True)
+    etnia = models.CharField("Etnia", max_length=32, 
+        choices=[
+            (t, t)
+            for t in [
+                'Branco',
+                'Negro',
+                'Pardo',
+                'Indígena',
+                'Amarelo'
+            ]
+        ], default='Branco')
     alergias = models.ManyToManyField(Alergia, null = True, blank= True, verbose_name="Alergia a remédio - se sim, qual(is)")
     sintomas = models.ManyToManyField(Sintoma, null = True, blank= True, verbose_name="Teve sintomas - se sim, qual(is)")
     
@@ -152,7 +163,10 @@ class Dias_Sintoma(models.Model):
 class Medicoes_dia(models.Model):
     id = models.AutoField(primary_key=True)
     paciente = models.ForeignKey(Paciente, on_delete=models.CASCADE, null= False)
-
+    
+    @property
+    def calc_intervalo(): pass
+    
     medicao = models.CharField("Tipo de Medição", max_length=32, 
         choices=[
             (t, t)
@@ -160,7 +174,8 @@ class Medicoes_dia(models.Model):
                 'Temperatura',
                 'Frequência cardiáca',
                 'Frequência respiratória',
-                'Pressão Arterial',
+                'Pressão Arterial Sistólica',
+                'Pressão Arterial Diastólica',
                 'Saturação de O2'
             ]
         ], default='Temperatura')
