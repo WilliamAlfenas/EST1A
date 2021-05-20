@@ -5,8 +5,11 @@ from django.http import HttpResponse
 from datetime import datetime
 from .models import Paciente, Sintoma, \
     Cidade, Comorbidade, Alergia, Forma_Tratamento, \
-    Fase, Origem, Dias_Sintoma, Medicoes_dia, DiagFinal
+    Fase, Origem, Dias_Sintoma, Medicoes_dia, DiagFinal, \
+    ResultadosExames, MetricasExame, Doencas, Medicoes_Indicadas, \
+    Medicoes_Estudo, Agravantes, Medicacao_Diaria
 from django import forms
+from liststyle import ListStyleAdminMixin
 
 ### cfehome.utils.py or the root of your project conf
 def get_model_field_names(model, ignore_fields=['content_object']):
@@ -81,7 +84,7 @@ def download_csv(modeladmin, request, queryset):
 
 download_csv.short_description = 'Baixar os items selecionados em CSV'
 
-class CustomAdmin(admin.ModelAdmin):
+class CustomAdmin(admin.ModelAdmin, ListStyleAdminMixin):
     class Media:
         css = {
              'all': ('custom.css',)
@@ -96,7 +99,9 @@ class Dias_SintomaInLine(admin.TabularInline):
                 'sintoma', 
                 'dia1', 'dia2', 'dia3', 
                 'dia4', 'dia5', 'dia6', 
-                'dia7', 'dia8', 'dia9'],
+                'dia7', 'dia8', 'dia9', 
+                'dia10', 'dia11', 'dia12', 
+                'dia13', 'dia14', 'dia15'],
             #'readonly_fields': ('intervalo')
         })
     ]
@@ -111,7 +116,9 @@ class Medicoes_diaInLine(admin.TabularInline):
                 'medicao', 
                 'dia1', 'dia2', 'dia3', 
                 'dia4', 'dia5', 'dia6', 
-                'dia7', 'dia8', 'dia9'],
+                'dia7', 'dia8', 'dia9', 
+                'dia10', 'dia11', 'dia12', 
+                'dia13', 'dia14', 'dia15'],
             #'readonly_fields': ('intervalo')
         }),
     ]
@@ -121,19 +128,63 @@ class Medicoes_diaInLine(admin.TabularInline):
     
     extra = 1
 
+class ResultadosExamesInLine(admin.TabularInline):
+    model = ResultadosExames
+    fieldsets = [
+        (None, {
+            'fields': [
+                'data', 
+                'met1', 'val1', 'met2', 
+                'val2'
+            ]
+        }),
+    ]
+    
+    extra = 1
+
 class PacienteAdmin(CustomAdmin):
-    inlines = [Dias_SintomaInLine, Medicoes_diaInLine]
-    search_fields = ['nome', 'sexo', 'idade']
+    inlines = [
+        Dias_SintomaInLine, 
+        Medicoes_diaInLine,
+        ResultadosExamesInLine
+    ]
+    search_fields = 'nome sexo idade'.split()
+
+    def get_row_css(self, obj, index):
+        s = obj
+        if not s.dt_ini_trat or not s.dt_ini_sintomas:
+            return 'green'
+        tardio = (s.dt_ini_trat - s.dt_ini_sintomas).days
+        graus = [
+            (2, 'blue'),
+            (3, 'yellow'),
+            (4, 'orange'),
+            (5, 'red'),
+            (60, 'purple')
+        ]
+        
+        for limite, nome in graus:
+            if tardio < limite:
+                return nome
+
+        return graus[-1][1]
 
 
 admin.site.register(Paciente, PacienteAdmin)
 admin.site.register(Sintoma, CustomAdmin)
 admin.site.register(Cidade, CustomAdmin)
 admin.site.register(Comorbidade, CustomAdmin)
+admin.site.register(Medicacao_Diaria, CustomAdmin)
 admin.site.register(Alergia, CustomAdmin)
 admin.site.register(Forma_Tratamento, CustomAdmin)
 admin.site.register(Fase, CustomAdmin)
 admin.site.register(Origem, CustomAdmin)
 admin.site.register(DiagFinal, CustomAdmin)
-admin.site.site_header = 'Grupo Covid19 - Estágio 1A'
-admin.site.site_title = 'Grupo Covid19 - Estágio 1A'
+admin.site.register(MetricasExame, CustomAdmin)
+admin.site.register(Doencas, CustomAdmin)
+admin.site.register(Medicoes_Indicadas, CustomAdmin)
+admin.site.register(Medicoes_Estudo, CustomAdmin)
+admin.site.register(Agravantes, CustomAdmin)
+
+admin.site.site_header = 'Grupo Resolution'
+admin.site.site_title = 'Grupo Resolution'

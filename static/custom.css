@@ -1,1 +1,9 @@
 td[class^=field-dia] > input[type=number]{width: 60px;}
+td[class^=field-val] > input[type=number]{width: 70px;}
+.gray{background-color: lightgray;}
+.blue{background-color: lightblue;}
+.yellow{background-color: yellow;}
+.orange{background-color: orange;}
+.red{background-color: red;}
+.purple{background-color: plum;}
+.green{background-color: lightgreen;}

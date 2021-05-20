@@ -1,1 +1,11 @@
-select * from coletas_pacientes
+DELETE FROM coletas_paciente_comorbidades;
+DELETE FROM coletas_paciente_alergias;
+DELETE FROM coletas_paciente_sintomas;
+DELETE FROM coletas_paciente_medic_est_associada;
+DELETE FROM coletas_paciente_medic_reg_indicada;
+DELETE FROM coletas_paciente_jah_doencas;
+DELETE FROM coletas_paciente_tratamentos;
+delete FROM coletas_paciente_alergias;
+delete from coletas_resultadosexames;
+delete from coletas_medicoes_dia;
+delete from coletas_dias_sintoma;

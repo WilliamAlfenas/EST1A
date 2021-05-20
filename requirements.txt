@@ -1,1 +1,2 @@
 django==3.0.6
+git+https://github.com/WilliamAlfenas/django-liststyle.git#egg=django-liststyle
